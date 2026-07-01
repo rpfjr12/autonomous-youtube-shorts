@@ -1,0 +1,40 @@
+name: Generate YouTube Short
+
+on:
+  schedule:
+    # Runs daily at 12:00 UTC (adjust as needed)
+    - cron: '0 12 * * *'
+  workflow_dispatch:
+
+jobs:
+  build-short:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Generate Short
+        run: python main.py
+
+      - name: Upload MP4 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: youtube-short
+          path: output/*.mp4
+          if-no-files-found: error
